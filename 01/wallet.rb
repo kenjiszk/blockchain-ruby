@@ -24,7 +24,7 @@ class Wallet
     hashed_public_key = double_hash(compressed_public_key)
     hashed_public_key_with_network_byte = "00" + hashed_public_key
     row_address = hashed_public_key_with_network_byte + checksum(hashed_public_key_with_network_byte)
-    address = Base58.binary_to_base58([row_address].pack("H*"), :bitcoin)
+    Base58.binary_to_base58([row_address].pack("H*"), :bitcoin)
   end
 
   def prefix
@@ -37,7 +37,7 @@ class Wallet
 
   def double_hash(key)
     sha256 = Digest::SHA256.hexdigest [key].pack("H*")
-    rmd160_sha256 = Digest::RMD160.hexdigest [sha256].pack("H*")
+    Digest::RMD160.hexdigest [sha256].pack("H*")
   end
 
   def checksum(key)
