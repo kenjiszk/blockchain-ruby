@@ -26,7 +26,7 @@ begin
   # Restore transactions if exist
   p "Restore Transactions from Database"
   transactions = db.restore(key)
-rescue => e
+rescue StandardError
   # Create coinbase transaction
   # Alis got 1000 coins
   p "Create First Transaction"
