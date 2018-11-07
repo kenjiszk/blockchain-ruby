@@ -70,9 +70,11 @@ class Wallet
     transactions.each do |transaction|
       transaction.outputs.each.with_index do |output, output_index|
         if owner?(output)
-          utxo[transaction.id] = [] if utxo[transaction.id].nil?
-          utxo[transaction.id].push output_index
-          amounts += output.amount
+          if unspent?(transaction.id, output_index, transactions)
+            utxo[transaction.id] = [] if utxo[transaction.id].nil?
+            utxo[transaction.id].push output_index
+            amounts += output.amount
+          end
         end
         return utxo, amounts if amounts >= pay_amount
       end
@@ -116,9 +118,8 @@ class Wallet
     transactions.each do |transaction|
       transaction.inputs.each do |input|
         next if input.nil?
-        p "#{input.transaction_id} #{transaction_id} #{input.related_output} #{output_index}"
         if input.transaction_id == transaction_id && input.related_output == output_index
-          p '!!!!!'
+          return false
         end
       end
     end

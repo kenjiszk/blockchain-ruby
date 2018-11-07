@@ -3,9 +3,9 @@ require './database.rb'
 
 # Create wallet addresses by create_wallet.rb and paste here.
 addresses = {
-  "Alis" => "1FmLfp9XgHL7XhMi419Cqeo3BGjFTq9Bnu",
-  "Bob" => "18PJnYUP48J9PREjJc27QxGLSSNtk81MZV",
-  "Carol" => "1Aou4peTi46J3bsRm1aETB61n5N47YvPPN"
+  "Alis" => ENV['WALLET1'],
+  "Bob" => ENV['WALLET2'],
+  "Carol" => ENV['WALLET3']
 }
 
 # Restore walletes
@@ -35,11 +35,11 @@ rescue
   db.save(key, transactions)
 end
 
-#transactions.push wallets['Alis'].pay(wallets['Bob'].address, 1, transactions)
-#transactions.push wallets['Alis'].pay(wallets['Bob'].address, 1, transactions)
-#transactions.push wallets['Alis'].pay(wallets['Carol'].address, 1, transactions)
-#db.save(key, transactions)
+transactions.push wallets['Alis'].pay(wallets['Bob'].address, 1, transactions)
+transactions.push wallets['Alis'].pay(wallets['Bob'].address, 1, transactions)
+transactions.push wallets['Alis'].pay(wallets['Carol'].address, 1, transactions)
+db.save(key, transactions)
 
 wallets.each do |name, wallet|
-  p wallet.balance(transactions)
+  p "#{name}'s balance : #{wallet.balance(transactions)}"
 end
