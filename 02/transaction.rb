@@ -1,15 +1,17 @@
 require 'securerandom'
 
 class Transaction
-  attr_accessor :id
+  attr_accessor :id, :inputs, :outputs
 
   def initialize(id, inputs, outputs)
     @id = id
     @inputs = inputs
-    @outpus = outputs
+    @outputs = outputs
+    self
   end
 
   def set_id
-    SecureRandom.hex(32)
+    @id = SecureRandom.hex(32)
+    self
   end
 end
