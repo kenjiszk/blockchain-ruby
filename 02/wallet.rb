@@ -13,7 +13,6 @@ class Wallet
   def initialize
     @private_key = nil
     @public_key = nil
-    self
   end
 
   def create_key

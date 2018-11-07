@@ -7,7 +7,6 @@ class Transaction
     @id = id
     @inputs = inputs
     @outputs = outputs
-    self
   end
 
   def set_id
