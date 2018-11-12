@@ -64,24 +64,6 @@ class Wallet
     self
   end
 
-  def collect_utxo(transactions, pay_amount)
-    utxo = {}
-    amounts = 0
-    transactions.each do |transaction|
-      transaction.outputs.each.with_index do |output, output_index|
-        if owner?(output)
-          if unspent?(transaction.id, output_index, transactions)
-            utxo[transaction.id] = [] if utxo[transaction.id].nil?
-            utxo[transaction.id].push output_index
-            amounts += output.amount
-          end
-        end
-        return utxo, amounts if amounts >= pay_amount
-      end
-    end
-    return utxo, amounts
-  end
-
   def pay(to, amount)
     transactions = Transactions.new(nil)
     use_utxo, use_amount = transactions.collect_enough_utxo(self.address, amount)
@@ -106,36 +88,4 @@ class Wallet
     end
     transaction
   end
-
-=begin
-  def balance(transactions)
-    balance = 0
-    transactions.each do |transaction|
-      transaction.outputs.each.with_index do |output, output_index|
-        if owner?(output)
-          if unspent?(transaction.id, output_index, transactions)
-            balance += output.amount
-          end
-        end
-      end
-    end
-    balance
-  end
-
-  def owner?(output)
-    output.locking_script == self.address
-  end
-
-  def unspent?(transaction_id, output_index, transactions)
-    transactions.each do |transaction|
-      transaction.inputs.each do |input|
-        next if input.nil?
-        if input.transaction_id == transaction_id && input.related_output == output_index
-          return false
-        end
-      end
-    end
-    true
-  end
-=end
 end
