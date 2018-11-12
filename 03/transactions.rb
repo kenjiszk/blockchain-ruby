@@ -48,7 +48,7 @@ class Transactions
   end
 
   def balance(address)
-    utxo, amounts = collect_enough_utxo(address, nil)
+    _, amounts = collect_enough_utxo(address, nil)
     amounts
   end
 
