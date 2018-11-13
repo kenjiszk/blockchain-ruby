@@ -28,7 +28,7 @@ class Transaction
   def is_valid?
     self.inputs.each do |input|
       # check input is unspent
-      transactions = Transactions.new(nil)
+      transactions = Transactions.new
       unless transactions.unspent?(input.transaction_id, input.related_output)
         p '!!! This output is already spent !!!'
         return false

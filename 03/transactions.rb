@@ -3,23 +3,22 @@ require './database.rb'
 class Transactions
   attr_accessor :all
 
-  def initialize(wallets)
+  def initialize()
     @all = []
     @key = "transactions"
+  end
+
+  def load_all
     db = Database.new
-    begin
-      # Restore transactions if exist
-      p "Restore Transactions from Database"
-      @all = db.restore(@key)
-    rescue StandardError
-      # Create coinbase transaction
-      # Alis got 1000 coins
-      p "Create First Transaction"
-      input = Input.new(nil, nil, 'This is first transaction')
-      output = Output.new(1000, wallets[:Alis].address)
-      @all.push Transaction.new(nil, [input], [output]).set_id
-      db.save(@key, @all)
-    end
+    @all = db.restore(@key)
+  end
+
+  def create_first_transaction(wallets)
+    input = Input.new(nil, nil, 'This is first transaction')
+    output = Output.new(1000, wallets[:Alis].address)
+    @all.push Transaction.new(nil, [input], [output]).set_id
+    db = Database.new
+    db.save(@key, @all)
   end
 
   def save

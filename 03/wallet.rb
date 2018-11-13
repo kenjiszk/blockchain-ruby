@@ -65,7 +65,7 @@ class Wallet
   end
 
   def pay(to, amount)
-    transactions = Transactions.new(nil)
+    transactions = Transactions.new
     use_utxo, use_amount = transactions.collect_enough_utxo(self.address, amount)
     inputs =[]
     use_utxo.each do |transaction_id, output_indexes|

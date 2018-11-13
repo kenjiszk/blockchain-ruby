@@ -19,7 +19,12 @@ addresses.each do |name, address|
 end
 
 # Restore or Create transactions
-transactions = Transactions.new(wallets)
+transactions = Transactions.new
+begin
+  transactions.load_all
+rescue StandardError
+  transactions.create_first_transaction(wallets)
+end
 
 new_transactions = []
 new_transactions.push wallets[:Alis].pay(wallets[:Bob].address, 1)
