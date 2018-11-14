@@ -17,7 +17,7 @@ class Transaction
 
   def get_hash
     transaction_info = self.inputs.map do |input|
-      input.transaction_id.to_s + input.related_output.to_s
+      input.transaction_id.to_s + input.related_output.to_s + input.unlocking_script.to_s
     end
     transaction_info += self.outputs.map do |output|
       output.amount.to_s + output.locking_script.to_s
@@ -25,10 +25,22 @@ class Transaction
     Digest::SHA256.hexdigest transaction_info.join
   end
 
+  def sign
+    transactions = Transactions.new
+    transactions.load_all
+    # p transactions.get_transaction_by_id(self.id)
+    p @input
+    @inputs.each do |input|
+      p input.transaction_id
+    end
+    p 'AAA'
+  end
+
   def is_valid?
+    transactions = Transactions.new
+    transactions.load_all
     self.inputs.each do |input|
       # check input is unspent
-      transactions = Transactions.new
       unless transactions.unspent?(input.transaction_id, input.related_output)
         p '!!! This output is already spent !!!'
         return false

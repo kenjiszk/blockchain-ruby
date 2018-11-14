@@ -66,4 +66,11 @@ class Transactions
     end
     true
   end
+
+  def get_transaction_by_id(id)
+    @all.each do |transaction|
+      return transaction if transaction.id == id
+    end
+    return nil
+  end
 end

@@ -77,6 +77,10 @@ class Wallet
     outputs.push Output.new(amount, to)
     outputs.push Output.new(use_amount - amount, address)
     transaction = Transaction.new(nil, inputs, outputs).set_id
+
+    p transaction
+    transaction.sign
+
     transaction.inputs.each.with_index do |input, input_index|
       group = ECDSA::Group::Secp256k1
       nonce = 1 + SecureRandom.random_number(group.order - 1)
