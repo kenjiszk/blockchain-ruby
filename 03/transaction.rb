@@ -17,7 +17,7 @@ class Transaction
 
   def get_hash
     transaction_info = self.inputs.map do |input|
-      input.transaction_id.to_s + input.related_output.to_s
+      input.transaction_id.to_s + input.related_output.to_s + input.unlocking_script.to_s
     end
     transaction_info += self.outputs.map do |output|
       output.amount.to_s + output.locking_script.to_s
@@ -26,18 +26,30 @@ class Transaction
   end
 
   def is_valid?
-    self.inputs.each do |input|
-      # check input is unspent
-      transactions = Transactions.new(nil)
-      unless transactions.unspent?(input.transaction_id, input.related_output)
-        p '!!! This output is already spent !!!'
+    transactions = Transactions.new
+    transactions.load_all
+
+    # deep copy
+    sign_transaction = Marshal.load(Marshal.dump(self))
+    sign_transaction.inputs do |input, input_index|
+      sign_transaction.inputs[input_index].unlocking_script = nil
+    end
+
+    self.inputs.each.with_index do |input, input_index|
+      # check signature
+      previous_transaction = transactions.get_transaction_by(input.transaction_id)
+      previous_output = previous_transaction.outputs[input.related_output]
+      sign_transaction.inputs[input_index].unlocking_script = previous_output.locking_script
+
+      signature, public_key = retrieve_signature_and_public_key(input.unlocking_script)
+      unless ECDSA.valid_signature?(public_key, sign_transaction.get_hash, signature)
+        p 'This is invalid transaction.'
         return false
       end
 
-      # check signature
-      signature, public_key = retrieve_signature_and_public_key(input.unlocking_script)
-      unless ECDSA.valid_signature?(public_key, @id, signature)
-        p 'This is invalid transaction.'
+      # check input is unspent
+      unless transactions.unspent?(input.transaction_id, input.related_output)
+        p '!!! This output is already spent !!!'
         return false
       end
     end
