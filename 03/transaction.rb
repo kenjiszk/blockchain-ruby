@@ -25,31 +25,31 @@ class Transaction
     Digest::SHA256.hexdigest transaction_info.join
   end
 
-  def sign
-    transactions = Transactions.new
-    transactions.load_all
-    # p transactions.get_transaction_by_id(self.id)
-    p @input
-    @inputs.each do |input|
-      p input.transaction_id
-    end
-    p 'AAA'
-  end
-
   def is_valid?
     transactions = Transactions.new
     transactions.load_all
-    self.inputs.each do |input|
-      # check input is unspent
-      unless transactions.unspent?(input.transaction_id, input.related_output)
-        p '!!! This output is already spent !!!'
+
+    # deep copy
+    sign_transaction = Marshal.load(Marshal.dump(self))
+    sign_transaction.inputs do |input, input_index|
+      sign_transaction.inputs[input_index].unlocking_script = nil
+    end
+
+    self.inputs.each.with_index do |input, input_index|
+      # check signature
+      previous_transaction = transactions.get_transaction_by(input.transaction_id)
+      previous_output = previous_transaction.outputs[input.related_output]
+      sign_transaction.inputs[input_index].unlocking_script = previous_output.locking_script
+
+      signature, public_key = retrieve_signature_and_public_key(input.unlocking_script)
+      unless ECDSA.valid_signature?(public_key, sign_transaction.get_hash, signature)
+        p 'This is invalid transaction.'
         return false
       end
 
-      # check signature
-      signature, public_key = retrieve_signature_and_public_key(input.unlocking_script)
-      unless ECDSA.valid_signature?(public_key, @id, signature)
-        p 'This is invalid transaction.'
+      # check input is unspent
+      unless transactions.unspent?(input.transaction_id, input.related_output)
+        p '!!! This output is already spent !!!'
         return false
       end
     end

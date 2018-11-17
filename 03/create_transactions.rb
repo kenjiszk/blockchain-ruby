@@ -30,6 +30,7 @@ new_transactions = []
 new_transactions.push wallets[:Alis].pay(wallets[:Bob].address, 1)
 new_transactions.push wallets[:Alis].pay(wallets[:Bob].address, 1)
 new_transactions.push wallets[:Alis].pay(wallets[:Carol].address, 1)
+new_transactions.push wallets[:Bob].pay(wallets[:Carol].address, 1)
 
 new_transactions.each do |transaction|
   if transaction.is_valid?

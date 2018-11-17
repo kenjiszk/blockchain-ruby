@@ -66,6 +66,7 @@ class Wallet
 
   def pay(to, amount)
     transactions = Transactions.new
+    transactions.load_all
     use_utxo, use_amount = transactions.collect_enough_utxo(self.address, amount)
     inputs =[]
     use_utxo.each do |transaction_id, output_indexes|
@@ -78,13 +79,17 @@ class Wallet
     outputs.push Output.new(use_amount - amount, address)
     transaction = Transaction.new(nil, inputs, outputs).set_id
 
-    p transaction
-    transaction.sign
+    # deep copy
+    sign_transaction = Marshal.load(Marshal.dump(transaction))
 
-    transaction.inputs.each.with_index do |input, input_index|
+    sign_transaction.inputs.each.with_index do |input, input_index|
+      previous_transaction = transactions.get_transaction_by(input.transaction_id)
+      previous_output = previous_transaction.outputs[input.related_output]
+      sign_transaction.inputs[input_index].unlocking_script = previous_output.locking_script
+
       group = ECDSA::Group::Secp256k1
       nonce = 1 + SecureRandom.random_number(group.order - 1)
-      raw_sig = ECDSA.sign(group, self.private_key, transaction.id, nonce)
+      raw_sig = ECDSA.sign(group, self.private_key, sign_transaction.get_hash, nonce)
       encoded_sig = ECDSA::Format::SignatureDerString.encode(raw_sig)
       encoded_pub = ECDSA::Format::PointOctetString.encode(@public_key)
       signature = [encoded_sig.length + 1].pack('C') + encoded_sig + [1].pack('C') + [encoded_pub.length].pack('C') + encoded_pub
