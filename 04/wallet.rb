@@ -86,15 +86,17 @@ class Wallet
       previous_transaction = transactions.get_transaction_by(input.transaction_id)
       previous_output = previous_transaction.outputs[input.related_output]
       sign_transaction.inputs[input_index].unlocking_script = previous_output.locking_script
-
-      group = ECDSA::Group::Secp256k1
-      nonce = 1 + SecureRandom.random_number(group.order - 1)
-      raw_sig = ECDSA.sign(group, self.private_key, sign_transaction.get_hash, nonce)
-      encoded_sig = ECDSA::Format::SignatureDerString.encode(raw_sig)
-      encoded_pub = ECDSA::Format::PointOctetString.encode(@public_key)
-      signature = [encoded_sig.length + 1].pack('C') + encoded_sig + [1].pack('C') + [encoded_pub.length].pack('C') + encoded_pub
-      transaction.inputs[input_index].unlocking_script = signature
+      transaction.inputs[input_index].unlocking_script = create_signature(sign_transaction.get_hash)
     end
     transaction
+  end
+
+  def create_signature(data)
+    group = ECDSA::Group::Secp256k1
+    nonce = 1 + SecureRandom.random_number(group.order - 1)
+    raw_sig = ECDSA.sign(group, @private_key, data, nonce)
+    encoded_sig = ECDSA::Format::SignatureDerString.encode(raw_sig)
+    encoded_pub = ECDSA::Format::PointOctetString.encode(@public_key)
+    signature = [encoded_sig.length + 1].pack('C') + encoded_sig + [1].pack('C') + [encoded_pub.length].pack('C') + encoded_pub
   end
 end
