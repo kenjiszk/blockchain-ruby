@@ -97,6 +97,6 @@ class Wallet
     raw_sig = ECDSA.sign(group, @private_key, data, nonce)
     encoded_sig = ECDSA::Format::SignatureDerString.encode(raw_sig)
     encoded_pub = ECDSA::Format::PointOctetString.encode(@public_key)
-    signature = [encoded_sig.length + 1].pack('C') + encoded_sig + [1].pack('C') + [encoded_pub.length].pack('C') + encoded_pub
+    [encoded_sig.length + 1].pack('C') + encoded_sig + [1].pack('C') + [encoded_pub.length].pack('C') + encoded_pub
   end
 end
