@@ -10,6 +10,6 @@ class Block
   end
 
   def set_hash
-    @hash = Digest::SHA256.hexdigest (Time.now.to_s + @prev_block_hash)
+    @hash = Digest::SHA256.hexdigest(Time.now.to_s + @prev_block_hash)
   end
 end
