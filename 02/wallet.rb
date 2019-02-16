@@ -3,9 +3,6 @@ require 'digest'
 require 'ecdsa'
 require 'securerandom'
 require './database.rb'
-require './input.rb'
-require './output.rb'
-require './transaction.rb'
 
 class Wallet
   attr_accessor :private_key, :public_key
@@ -16,6 +13,7 @@ class Wallet
   end
 
   def create_key
+    # Create private_key of ECDSA and public_key
     group = ECDSA::Group::Secp256k1
     @private_key = 1 + SecureRandom.random_number(group.order - 1)
     @public_key = group.generator.multiply_by_scalar(private_key)
@@ -60,68 +58,21 @@ class Wallet
     saved_wallet = db.restore(key)
     @private_key = saved_wallet.private_key
     @public_key = saved_wallet.public_key
-    self
   end
 
-  def collect_utxo(transactions, pay_amount)
-    utxo = {}
-    amounts = 0
-    transactions.each do |transaction|
-      transaction.outputs.each.with_index do |output, output_index|
-        if owner?(output)
-          if unspent?(transaction.id, output_index, transactions)
-            utxo[transaction.id] = [] if utxo[transaction.id].nil?
-            utxo[transaction.id].push output_index
-            amounts += output.amount
-          end
-        end
-        return utxo, amounts if amounts >= pay_amount
-      end
-    end
-    return utxo, amounts
-  end
-
-  def pay(to, amount, transactions)
-    use_utxo, use_amount = collect_utxo(transactions, amount)
+  def pay(to, amount)
+    transactions = Transactions.new
+    transactions.load_all
+    use_utxo, use_amount = transactions.collect_enough_utxo(self.address, amount)
     inputs =[]
     use_utxo.each do |transaction_id, output_indexes|
       output_indexes.each do |output_index|
-        inputs.push Input.new(transaction_id, output_index, 'Signature')
+        inputs.push Input.new(transaction_id, output_index, nil)
       end
     end
     outputs = []
     outputs.push Output.new(amount, to)
     outputs.push Output.new(use_amount - amount, address)
-    Transaction.new(nil, inputs, outputs).set_id
-  end
-
-  def balance(transactions)
-    balance = 0
-    transactions.each do |transaction|
-      transaction.outputs.each.with_index do |output, output_index|
-        if owner?(output)
-          if unspent?(transaction.id, output_index, transactions)
-            balance += output.amount
-          end
-        end
-      end
-    end
-    balance
-  end
-
-  def owner?(output)
-    output.locking_script == self.address
-  end
-
-  def unspent?(transaction_id, output_index, transactions)
-    transactions.each do |transaction|
-      transaction.inputs.each do |input|
-        next if input.nil?
-        if input.transaction_id == transaction_id && input.related_output == output_index
-          return false
-        end
-      end
-    end
-    true
+    transaction = Transaction.new(nil, inputs, outputs).set_id
   end
 end
