@@ -73,6 +73,6 @@ class Wallet
     outputs = []
     outputs.push Output.new(amount, to)
     outputs.push Output.new(use_amount - amount, address)
-    transaction = Transaction.new(nil, inputs, outputs).set_id
+    Transaction.new(nil, inputs, outputs).set_id
   end
 end
