@@ -26,24 +26,39 @@ begin
   last_hash = db.restore("last_hash")
 rescue StandardError
   # Create Genesys Block
+  p 'Blockchain not found. Create Genesys Block.'
   blockchain = Blockchain.new
   blockchain.create_genesis_block(wallets[:Alis])
   last_hash = db.restore("last_hash")
 end
 
-p last_hash
+transactions = Transactions.new
+transactions.load_all
 
-transactions = []
-blockchain = Blockchain.new
-blockchain.create_block(transactions)
+wallets.each do |name, wallet|
+  p "#{name}'s balance : #{transactions.balance(wallet.address)}"
+end
 
-# Print all blocks
-last_hash = db.restore("last_hash")
-current_block = db.restore(last_hash)
-while current_block.prev_block_hash != ""
-  p current_block.hash
-  p current_block.prev_block_hash
-  p "==="
-  last_hash = current_block.prev_block_hash
-  current_block = db.restore(last_hash)
+new_transactions = []
+new_transactions.push wallets[:Alis].pay(wallets[:Bob].address, 100)
+new_transactions.push wallets[:Bob].pay(wallets[:Carol].address, 100)
+
+new_transactions.each do |transaction|
+  if transaction.is_valid?
+    transactions.add_to_mem_pool transaction
+  else
+    transactions.delete_mem_pool
+    break
+  end
+end
+
+if transactions.mem_pool.count > 0
+  p 'create new block with valid new transactions'
+  blockchain = Blockchain.new
+  blockchain.create_block(transactions.mem_pool)
+  transactions.delete_mem_pool
+end
+
+wallets.each do |name, wallet|
+  p "#{name}'s balance : #{transactions.balance(wallet.address)}"
 end

@@ -1,34 +1,54 @@
 require './database.rb'
 
 class Transactions
-  attr_accessor :all
+  attr_accessor :all, :mem_pool
 
   def initialize()
     @all = []
+    @mem_pool = []
     @key = "transactions"
   end
 
   def load_all
     db = Database.new
-    @all = db.restore(@key)
+    # load mem pool transactions
+    begin
+      @mem_pool = db.restore(@key)
+    rescue StandardError
+      @mem_pool = []
+    end
+    @all = Marshal.load(Marshal.dump(@mem_pool))
+
+    # load mined transactions
+    last_hash = db.restore('last_hash')
+    while last_hash != '' do
+      last_block = db.restore(last_hash)
+      @all += last_block.transactions
+      last_hash = last_block.prev_block_hash
+    end
   end
 
-  def create_first_transaction(wallets)
-    input = Input.new(nil, nil, 'This is first transaction')
-    output = Output.new(1000, wallets[:Alis].address)
-    @all.push Transaction.new(nil, [input], [output]).set_id
+  def add_to_mem_pool(transaction)
     db = Database.new
-    db.save(@key, @all)
+    begin
+      @mem_pool = db.restore(@key)
+    rescue StandardError
+      @mem_pool = []
+    end
+    @mem_pool.push transaction
+    db.save(@key, @mem_pool)
   end
 
-  def save
+  def delete_mem_pool
+    @mem_pool = []
     db = Database.new
-    db.save(@key, @all)
+    db.save(@key, @mem_pool)
   end
 
   def collect_enough_utxo(address, pay_amount)
     utxo = {}
     amounts = 0
+    load_all
     @all.each do |transaction|
       transaction.outputs.each.with_index do |output, output_index|
         if owner?(output, address)
