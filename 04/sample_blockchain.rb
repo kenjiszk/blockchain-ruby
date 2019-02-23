@@ -20,7 +20,6 @@ end
 
 # Load last_hash or Create Blockchain
 db = Database.new
-last_hash = ""
 begin
   # Load Last Hash
   last_hash = db.restore("last_hash")
