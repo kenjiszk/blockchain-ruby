@@ -31,6 +31,10 @@ rescue StandardError
   last_hash = db.restore("last_hash")
 end
 
+# print genesis block for debugging
+genesis_block = db.restore(last_hash)
+p genesis_block.transactions[0].inputs[0].unlocking_script
+
 transactions = Transactions.new
 transactions.load_all
 
