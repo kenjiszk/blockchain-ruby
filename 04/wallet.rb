@@ -79,6 +79,10 @@ class Wallet
     outputs.push Output.new(use_amount - amount, address)
     transaction = Transaction.new(nil, inputs, outputs).set_id
 
+    sign(transactions, transaction)
+  end
+
+  def sign(transactions, transaction)
     # deep copy
     sign_transaction = Marshal.load(Marshal.dump(transaction))
 
