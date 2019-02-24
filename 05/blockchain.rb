@@ -34,12 +34,16 @@ class Blockchain
 
   def add_block(block)
     pow = ProofOfWork.new(block)
-    if pow.validate
+    if is_genesis_block(block) || pow.validate
       db = Database.new
       db.save("last_hash", block.hash)
       db.save(block.hash, block)
     else
       p 'This block is invalid in PoW.'
     end
+  end
+
+  def is_genesis_block(block)
+    block.transactions[0].inputs[0].unlocking_script == "This is first transaction"
   end
 end

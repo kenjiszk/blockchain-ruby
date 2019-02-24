@@ -14,7 +14,6 @@ class ProofOfWork
       hash = get_hash(nonce.to_s)
       if (hash.hex < @target.hex)
         @target_block.nonce = nonce
-        @target_block.hash = hash
         return true
       end
     }
@@ -24,11 +23,6 @@ class ProofOfWork
   def validate
     hash = get_hash(@target_block.nonce.to_s)
     hash.hex < @target.hex
-  end
-
-  def get_hash(prev_block_hash, data, timestamp, nonce)
-    headers = prev_block_hash + data + timestamp + nonce
-    Digest::SHA256.hexdigest headers
   end
 
   def get_hash(nonce)
