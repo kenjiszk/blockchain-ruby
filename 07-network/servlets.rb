@@ -26,7 +26,7 @@ class GenesisBlockServlet < WEBrick::HTTPServlet::AbstractServlet
   def do_POST(req, res)
     db = Database.new
     begin
-      last_hash = db.restore("last_hash")
+      db.restore("last_hash")
       res.status = 400
     rescue StandardError
       wallet = Wallet.new
