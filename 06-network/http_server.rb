@@ -3,7 +3,7 @@ require './servlets.rb'
 
 server = WEBrick::HTTPServer.new({ 
   :DocumentRoot => './',
-  :BindAddress => '127.0.0.1',
+  :BindAddress => '0.0.0.0',
   :Port => 8000
 })
 

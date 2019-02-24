@@ -12,6 +12,7 @@ class Wallet
   attr_accessor :private_key, :public_key
 
   def initialize
+    @key = 'wallet'
     @private_key = nil
     @public_key = nil
   end
@@ -50,15 +51,17 @@ class Wallet
   end
 
   def save
-    key = "wallet" + self.address
     db = Database.new
-    db.save(key, self)
+    db.save(@key, self)
   end
 
-  def load(address)
-    key = "wallet" + address
+  def load
     db = Database.new
-    saved_wallet = db.restore(key)
+    begin
+      saved_wallet = db.restore(@key)
+    rescue StandardError
+      return
+    end
     @private_key = saved_wallet.private_key
     @public_key = saved_wallet.public_key
     self

@@ -1,0 +1,41 @@
+node1:
+  build: .
+  environment:
+    - REDIS_HOST=redis1
+  ports:
+    - "8001:8000"
+  volumes:
+    - .:/app
+  links:
+    - redis1
+  command: ruby http_server.rb
+redis1:
+  image: redis
+
+node2:
+  build: .
+  environment:
+    - REDIS_HOST=redis2
+  ports:
+    - "8002:8000"
+  volumes:
+    - .:/app
+  links:
+    - redis2
+  command: ruby http_server.rb
+redis2:
+  image: redis
+
+node3:
+  build: .
+  environment:
+    - REDIS_HOST=redis3
+  ports:
+    - "8003:8000"
+  volumes:
+    - .:/app
+  links:
+    - redis3
+  command: ruby http_server.rb
+redis3:
+  image: redis

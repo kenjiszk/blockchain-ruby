@@ -2,7 +2,7 @@ require 'redis'
 
 class Database
   def initialize
-    @redis = Redis.new(host: "localhost", port: 6379, db: 06)
+    @redis = Redis.new(host: ENV['REDIS_HOST'], port: 6379, db: 06)
   end
 
   def save(key, data)

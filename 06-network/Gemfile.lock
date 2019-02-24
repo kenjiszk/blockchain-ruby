@@ -1,0 +1,17 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    base58 (0.2.3)
+    ecdsa (1.2.0)
+    redis (4.1.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  base58
+  ecdsa
+  redis
+
+BUNDLED WITH
+   1.16.2
