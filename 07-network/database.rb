@@ -21,4 +21,13 @@ class Database
   def deserialize(data)
     Marshal.load(data)
   end
+
+  def exist_in_local?(key)
+    begin
+      restore(key)
+    rescue StandardError
+      return false
+    end
+    true
+  end
 end

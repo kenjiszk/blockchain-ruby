@@ -8,6 +8,9 @@ server = WEBrick::HTTPServer.new({
 })
 
 server.mount('/wallet', WalletServlet)
+server.mount('/genesis_block', GenesisBlockServlet)
+server.mount('/blockchain', BlockchainServlet)
+server.mount('/update_blockchain', UpdateBlockchainServlet)
 
 Signal.trap('INT'){server.shutdown}
 server.start

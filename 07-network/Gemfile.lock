@@ -3,6 +3,9 @@ GEM
   specs:
     base58 (0.2.3)
     ecdsa (1.2.0)
+    faraday (0.15.4)
+      multipart-post (>= 1.2, < 3)
+    multipart-post (2.0.0)
     redis (4.1.0)
 
 PLATFORMS
@@ -11,6 +14,7 @@ PLATFORMS
 DEPENDENCIES
   base58
   ecdsa
+  faraday
   redis
 
 BUNDLED WITH
