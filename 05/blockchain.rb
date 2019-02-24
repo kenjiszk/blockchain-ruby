@@ -19,7 +19,8 @@ class Blockchain
     Transaction.new(nil, [input], [output]).set_id
   end
 
-  def create_block(transactions)
+  def create_block(transactions, miner)
+    transactions.push create_coinbase(miner)
     db = Database.new
     last_hash = db.restore("last_hash")
     block = Block.new(Time.now.to_i, transactions, last_hash)
@@ -45,5 +46,11 @@ class Blockchain
 
   def is_genesis_block(block)
     block.transactions[0].inputs[0].unlocking_script == "This is first transaction"
+  end
+
+  def create_coinbase(address)
+    input = Input.new(nil, nil, 'coinbase')
+    output = Output.new(25, address)
+    Transaction.new(nil, [input], [output]).set_id
   end
 end

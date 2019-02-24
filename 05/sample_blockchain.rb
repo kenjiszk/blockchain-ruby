@@ -58,7 +58,7 @@ end
 if transactions.mem_pool.count > 0
   p 'create new block with valid new transactions'
   blockchain = Blockchain.new
-  blockchain.create_block(transactions.mem_pool)
+  blockchain.create_block(transactions.mem_pool, wallets[:Alis].address)
   transactions.delete_mem_pool
 end
 
