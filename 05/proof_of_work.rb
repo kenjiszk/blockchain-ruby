@@ -12,7 +12,7 @@ class ProofOfWork
   def calculate(nonce_limit)
     (1..nonce_limit).each{|nonce|
       hash = get_hash(nonce.to_s)
-      if (hash.hex < @target.hex)
+      if hash.hex < @target.hex
         @target_block.nonce = nonce
         return true
       end
