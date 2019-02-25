@@ -88,7 +88,9 @@ class UpdateBlockchainServlet < WEBrick::HTTPServlet::AbstractServlet
       else
         unless blockchain.is_genesis_block(block)
           pow = ProofOfWork.new(block)
-          return unless pow.validate
+          unless pow.validate
+            return
+          end
         end
         db.save(block.hash, block)
         prev_block_hash = block.prev_block_hash
@@ -106,7 +108,7 @@ class PayServlet < WEBrick::HTTPServlet::AbstractServlet
 
     wallet = Wallet.new
     wallet.load
-    new_transaction = wallet.pay(to, 10)
+    new_transaction = wallet.pay(to, amount)
     transactions = Transactions.new
     if new_transaction.is_valid?
       transactions.add_to_mem_pool new_transaction
